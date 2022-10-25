@@ -1,5 +1,3 @@
-use std::panic::RefUnwindSafe;
-
 use indexmap::IndexMap;
 
 use crate::order::{Order, OrderDirection, OrderPair};

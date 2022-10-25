@@ -91,6 +91,10 @@ impl Wallet {
         }
     }
 
+    pub fn get_id(&self) -> u32 {
+        self.id
+    }
+
     pub fn deposite(&mut self, currency_name: CurrencyName, amount: u32) {
         match currency_name {
             CurrencyName::USDT => {
@@ -155,7 +159,7 @@ impl Wallet {
                 } else {
                     self.usdt.block_some(quantity * price);
                     Some(Order::create_order(
-                        self.name.clone(),
+                        self.id,
                         OrderPair::create_orderpair(CurrencyName::XTZ, CurrencyName::USDT),
                         direction,
                         quantity,
@@ -171,7 +175,7 @@ impl Wallet {
                 } else {
                     self.xtz.block_some(quantity * price);
                     Some(Order::create_order(
-                        self.name.clone(),
+                        self.id,
                         OrderPair::create_orderpair(CurrencyName::XTZ, CurrencyName::USDT),
                         direction,
                         quantity,

@@ -22,7 +22,7 @@ pub enum OrderDirection {
 
 pub struct Order {
     // id: String,
-    client_id: String,
+    client_id: u32,
     instrument_id: OrderPair,
     direction: OrderDirection,
     // time_in_force: datetime,
@@ -34,7 +34,7 @@ pub struct Order {
 
 impl Order {
     pub fn create_order(
-        client_id: String,
+        client_id: u32,
         instrument_id: OrderPair,
         direction: OrderDirection,
         quantity: u32,
@@ -64,8 +64,8 @@ impl Order {
         }
     }
 
-    pub fn get_client(&self) -> String {
-        self.client_id.clone()
+    pub fn get_client(&self) -> u32 {
+        self.client_id
     }
 
     pub fn get_quantity(&self) -> u32 {
@@ -78,6 +78,10 @@ impl Order {
 
     pub fn execute_full(&mut self) {
         self.set_quantity(0);
+        match self.direction {
+            OrderDirection::BUY => (),
+            OrderDirection::SELL => (),
+        }
     }
     pub fn execute_part(&mut self, executy_quantity: u32) {
         self.set_quantity(executy_quantity)
