@@ -13,13 +13,12 @@ impl Cup {
     }
     fn add_order(&mut self, order: Order) {
         let order_price = order.get_price();
-        let order_direction = order.get_direction();
         if let Some(orders) = self.order_list.get_mut(&order_price) {
             orders.push(order);
         } else {
             self.order_list.insert(order_price, vec![order]);
         }
-        self.order_list.sort_by(|k1, v1, k2, v2| k2.cmp(k1));
+        self.order_list.sort_by(|k1, _, k2, _| k2.cmp(k1));
         // match order_direction {
         //     OrderDirection::SELL => self.order_list.sort_keys(),
         //     OrderDirection::BUY => self.order_list.sort_by(|k1, v1, k2, v2| k2.cmp(k1)),
@@ -39,7 +38,7 @@ impl Cup {
                 if incoming_qtty == 0 {
                     break;
                 }
-                if (*counter_orders_price >= incoming_price) {
+                if *counter_orders_price >= incoming_price {
                     for counter_order in counter_orders.iter_mut() {
                         let counter_order_qtty = counter_order.get_quantity();
                         if counter_order_qtty > incoming_qtty {
@@ -66,7 +65,7 @@ impl Cup {
                 if incoming_qtty == 0 {
                     break;
                 }
-                if (*counter_orders_price <= incoming_price) {
+                if *counter_orders_price <= incoming_price {
                     for counter_order in counter_orders.iter_mut() {
                         let counter_order_qtty = counter_order.get_quantity();
                         if counter_order_qtty > incoming_qtty {
@@ -104,9 +103,9 @@ impl Cup {
             let mut clients = String::new();
             for order in order_list {
                 if total_quantity > 0 {
-                    clients += &format!(", {}", order.get_client());
+                    clients += &format!(", {}", order.get_client_name());
                 } else {
-                    clients += &format!("{}", order.get_client());
+                    clients += &format!("{}", order.get_client_name());
                 }
 
                 total_quantity += order.get_quantity();
@@ -121,15 +120,15 @@ impl Cup {
     }
 }
 pub struct Orderbook {
-    instrument_id: OrderPair,
+    _instrument_id: OrderPair,
     bids: Cup,
     asks: Cup,
 }
 
 impl Orderbook {
-    pub fn create_orderbook(instrument_id: OrderPair) -> Self {
+    pub fn create_orderbook(_instrument_id: OrderPair) -> Self {
         Self {
-            instrument_id,
+            _instrument_id,
             bids: Cup::create_list(),
             asks: Cup::create_list(),
         }
@@ -139,7 +138,7 @@ impl Orderbook {
         let direction = order.get_direction();
         println!(
             "\n\nIncoming order: {} {} {} by {}\n",
-            order.get_client(),
+            order.get_client_name(),
             order.get_direction_str(),
             order.get_quantity(),
             order.get_price(),

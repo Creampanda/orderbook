@@ -21,8 +21,8 @@ pub enum OrderDirection {
 #[derive(Debug, Clone)]
 
 pub struct Order {
-    // id: String,
     client_id: u32,
+    client_name: String,
     instrument_id: OrderPair,
     direction: OrderDirection,
     // time_in_force: datetime,
@@ -35,6 +35,7 @@ pub struct Order {
 impl Order {
     pub fn create_order(
         client_id: u32,
+        client_name: String,
         instrument_id: OrderPair,
         direction: OrderDirection,
         quantity: u32,
@@ -42,6 +43,7 @@ impl Order {
     ) -> Self {
         Self {
             client_id,
+            client_name,
             instrument_id,
             direction,
             quantity,
@@ -64,8 +66,8 @@ impl Order {
         }
     }
 
-    pub fn get_client(&self) -> u32 {
-        self.client_id
+    pub fn get_client_name(&self) -> String {
+        self.client_name.clone()
     }
 
     pub fn get_quantity(&self) -> u32 {

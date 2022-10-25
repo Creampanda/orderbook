@@ -9,15 +9,27 @@ pub enum CurrencyBalance {
 impl CurrencyBalance {
     pub fn get_available(&self) -> &u32 {
         match self {
-            Self::XTZ { available, blocked } => available,
-            Self::USDT { available, blocked } => available,
+            Self::XTZ {
+                available,
+                blocked: _,
+            } => available,
+            Self::USDT {
+                available,
+                blocked: _,
+            } => available,
         }
     }
 
     pub fn get_blocked(&self) -> &u32 {
         match self {
-            Self::XTZ { available, blocked } => blocked,
-            Self::USDT { available, blocked } => blocked,
+            Self::XTZ {
+                available: _,
+                blocked,
+            } => blocked,
+            Self::USDT {
+                available: _,
+                blocked,
+            } => blocked,
         }
     }
 
@@ -160,6 +172,7 @@ impl Wallet {
                     self.usdt.block_some(quantity * price);
                     Some(Order::create_order(
                         self.id,
+                        self.name.clone(),
                         OrderPair::create_orderpair(CurrencyName::XTZ, CurrencyName::USDT),
                         direction,
                         quantity,
@@ -176,6 +189,7 @@ impl Wallet {
                     self.xtz.block_some(quantity * price);
                     Some(Order::create_order(
                         self.id,
+                        self.name.clone(),
                         OrderPair::create_orderpair(CurrencyName::XTZ, CurrencyName::USDT),
                         direction,
                         quantity,
