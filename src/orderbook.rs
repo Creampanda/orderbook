@@ -21,46 +21,76 @@ impl Cup {
         } else {
             self.order_list.insert(order_price, vec![order]);
         }
-        match order_direction {
-            OrderDirection::SELL => self.order_list.sort_keys(),
-            OrderDirection::BUY => self.order_list.sort_by(|k1, v1, k2, v2| k2.cmp(k1)),
-        }
+        self.order_list.sort_by(|k1, v1, k2, v2| k2.cmp(k1));
+        // match order_direction {
+        //     OrderDirection::SELL => self.order_list.sort_keys(),
+        //     OrderDirection::BUY => self.order_list.sort_by(|k1, v1, k2, v2| k2.cmp(k1)),
+        // }
     }
 
     fn match_orders(&mut self, incoming_order: &mut Order) -> Option<Order> {
         let incoming_price = incoming_order.get_price();
         let incoming_direction = incoming_order.get_direction();
-
-        for (counter_orders_price, counter_orders) in self.order_list.iter_mut() {
-            let incoming_qtty = incoming_order.get_quantity();
-            if incoming_qtty == 0 {
-                break;
-            }
-            if (matches!(incoming_direction, OrderDirection::BUY)
-                && *counter_orders_price <= incoming_price)
-                || (matches!(incoming_direction, OrderDirection::SELL)
-                    && *counter_orders_price >= incoming_price)
-            {
-                for counter_order in counter_orders.iter_mut() {
-                    let counter_order_qtty = counter_order.get_quantity();
-                    if counter_order_qtty > incoming_qtty {
-                        let execute_quantity = counter_order_qtty - incoming_qtty;
-                        counter_order.execute_part(execute_quantity);
-                        incoming_order.execute_full();
-                        break;
-                    } else if counter_order_qtty == incoming_qtty {
-                        incoming_order.execute_full();
-                        counter_order.execute_full();
-                        break;
-                    } else {
-                        let execute_quantity = incoming_qtty - counter_order_qtty;
-                        counter_order.execute_full();
-                        incoming_order.execute_part(execute_quantity)
-                    }
+        // let order_list =  match incoming_direction {
+        //     OrderDirection::BUY => ,
+        //     OrderDirection::SELL => self.order_list.into_iter().rev(),
+        // };
+        if matches!(incoming_direction, OrderDirection::SELL) {
+            for (counter_orders_price, counter_orders) in self.order_list.iter_mut() {
+                let incoming_qtty = incoming_order.get_quantity();
+                if incoming_qtty == 0 {
+                    break;
                 }
-                counter_orders.retain(|order| order.get_quantity() > 0);
+                if (*counter_orders_price >= incoming_price) {
+                    for counter_order in counter_orders.iter_mut() {
+                        let counter_order_qtty = counter_order.get_quantity();
+                        if counter_order_qtty > incoming_qtty {
+                            let execute_quantity = counter_order_qtty - incoming_qtty;
+                            counter_order.execute_part(execute_quantity);
+                            incoming_order.execute_full();
+                            break;
+                        } else if counter_order_qtty == incoming_qtty {
+                            incoming_order.execute_full();
+                            counter_order.execute_full();
+                            break;
+                        } else {
+                            let execute_quantity = incoming_qtty - counter_order_qtty;
+                            counter_order.execute_full();
+                            incoming_order.execute_part(execute_quantity)
+                        }
+                    }
+                    counter_orders.retain(|order| order.get_quantity() > 0);
+                }
+            }
+        } else {
+            for (counter_orders_price, counter_orders) in self.order_list.iter_mut().rev() {
+                let incoming_qtty = incoming_order.get_quantity();
+                if incoming_qtty == 0 {
+                    break;
+                }
+                if (*counter_orders_price <= incoming_price) {
+                    for counter_order in counter_orders.iter_mut() {
+                        let counter_order_qtty = counter_order.get_quantity();
+                        if counter_order_qtty > incoming_qtty {
+                            let execute_quantity = counter_order_qtty - incoming_qtty;
+                            counter_order.execute_part(execute_quantity);
+                            incoming_order.execute_full();
+                            break;
+                        } else if counter_order_qtty == incoming_qtty {
+                            incoming_order.execute_full();
+                            counter_order.execute_full();
+                            break;
+                        } else {
+                            let execute_quantity = incoming_qtty - counter_order_qtty;
+                            counter_order.execute_full();
+                            incoming_order.execute_part(execute_quantity)
+                        }
+                    }
+                    counter_orders.retain(|order| order.get_quantity() > 0);
+                }
             }
         }
+
         self.order_list.retain(|k, v| !v.is_empty());
         let incoming_qtty = incoming_order.get_quantity();
         if incoming_qtty == 0 {
@@ -109,6 +139,13 @@ impl Orderbook {
 
     pub fn add_order(&mut self, mut order: Order) {
         let direction = order.get_direction();
+        println!(
+            "\n\nIncoming order: {} {} {} by {}\n",
+            order.get_client(),
+            order.get_direction_str(),
+            order.get_quantity(),
+            order.get_price(),
+        );
         match direction {
             OrderDirection::BUY => {
                 let order_match_result = self.asks.match_orders(&mut order);
@@ -129,9 +166,9 @@ impl Orderbook {
         println!("{:>7} | {:>7} | {:>7} | {}", "PRICE", "QTTY", "DIR", "IDs",);
         println!();
 
-        self.bids.print_cup(String::from("BUY"));
-        println!("---------------------------------");
         self.asks.print_cup(String::from("SELL"));
+        println!("---------------------------------");
+        self.bids.print_cup(String::from("BUY"));
     }
 
     // pub fn match_order(&mut self, order: Order) {

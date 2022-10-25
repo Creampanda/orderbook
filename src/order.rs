@@ -57,6 +57,13 @@ impl Order {
         self.direction.clone()
     }
 
+    pub fn get_direction_str(&self) -> &str {
+        match self.direction {
+            OrderDirection::BUY => "BUY",
+            OrderDirection::SELL => "SELL",
+        }
+    }
+
     pub fn get_client(&self) -> String {
         self.client_id.clone()
     }
